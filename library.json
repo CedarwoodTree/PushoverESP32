@@ -1,0 +1,11 @@
+{
+    "name": "Pushover - ESP32 WROOM",
+    "description": "HTTPS Pushover Service",
+    "keywords": "https,pushover,client,notification",
+    "authors": {
+        "name": "Sean McGregor",
+        "maintainer": true
+    },
+    "version": "1.0.0",
+    "frameworks": "arduino"
+}
