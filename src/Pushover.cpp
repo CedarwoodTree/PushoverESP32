@@ -1,6 +1,10 @@
 #include "Pushover.h"
 #include <ArduinoJson.h>
 
+// Store Expiry Date in Memory
+RTC_DATA_ATTR unsigned long EXPIRE_TIME = 60;
+
+// Class Constructors
 Pushover::Pushover() {}
 
 Pushover::Pushover(const char *API_KEY, const char *API_USER, const char *API_ENDPOINT)
@@ -10,6 +14,7 @@ Pushover::Pushover(const char *API_KEY, const char *API_USER, const char *API_EN
     _API_ENDPOINT = API_ENDPOINT;
 }
 
+// SSL CERT - PUSHOVER
 const char *PUSHOVER_ROOT_CA =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIEszCCA5ugAwIBAgIQCyWUIs7ZgSoVoE6ZUooO+jANBgkqhkiG9w0BAQsFADBh\n"
@@ -40,6 +45,22 @@ const char *PUSHOVER_ROOT_CA =
     "8o34/m8Fxw==\n"
     "-----END CERTIFICATE-----\n";
 
+// Return true if Post is Allowed
+bool Pushover::postAllowed()
+{
+    unsigned long currentTime = millis();
+
+    bool allow = false;
+
+    if ((currentTime - EXPIRE_TIME) / 1000 >= _TIMEOUT)
+    {
+        EXPIRE_TIME = currentTime;
+        allow = true;
+    }
+
+    return allow;
+}
+
 String Pushover::getJsonNotification(PushoverMessage msg)
 {
     JsonDocument notif;
@@ -60,37 +81,51 @@ String Pushover::getJsonNotification(PushoverMessage msg)
     return SerializedNotification;
 }
 
-int Pushover::send(PushoverMessage newMessage)
+int Pushover::send(PushoverMessage newMessage, bool limit)
 {
     int responseCode = 0;
 
-    // Initialize Secure WiFi Client
-    WiFiClientSecure client;
-    client.setCACert(PUSHOVER_ROOT_CA);
-
-    // Initialize HTTP Client with secure Wi-Fi client
-    HTTPClient https;
-    if (!https.begin(client, _API_ENDPOINT))
+    // Timout Check
+    if (limit && !postAllowed())
     {
-        // Error handling: if the connection fails
-        Serial.println("Unable to connect to the endpoint.");
-        return -1; // You can return an error code
+        Serial.println("Timeout Active");
+        return responseCode;
     }
 
-    https.addHeader("Content-Type", "application/json");
-
-    // Get the serialized notification JSON
-    String SerializedNotification = getJsonNotification(newMessage);
-
-    // Send the HTTP POST request
-    responseCode = https.POST(SerializedNotification);
-    if (responseCode <= 0)
+    if (WiFi.status() == WL_CONNECTED)
     {
-        // Error handling: if the POST request fails
-        Serial.printf("HTTP POST failed, response code: %d\n", responseCode);
-    }
+        // Initialize Secure WiFi Client
+        WiFiClientSecure client;
+        client.setCACert(PUSHOVER_ROOT_CA);
 
-    https.end(); // End the HTTPS session
+        // Initialize HTTP Client with secure Wi-Fi client
+        HTTPClient https;
+        if (!https.begin(client, _API_ENDPOINT))
+        {
+            // Error handling: if the connection fails
+            Serial.println("Unable to connect to the endpoint.");
+            return -1; // You can return an error code
+        }
+
+        https.addHeader("Content-Type", "application/json");
+
+        // Get the serialized notification JSON
+        String SerializedNotification = getJsonNotification(newMessage);
+
+        // Send the HTTP POST request
+        responseCode = https.POST(SerializedNotification);
+        if (responseCode <= 0)
+        {
+            // Error handling: if the POST request fails
+            Serial.printf("HTTP POST failed, response code: %d\n", responseCode);
+        }
+
+        https.end(); // End the HTTPS session
+    }
+    else
+    {
+        Serial.println("WiFi Not Connected");
+    }
 
     return responseCode;
 }
@@ -110,3 +145,8 @@ void Pushover::setEndpoint(const char *API_ENDPOINT)
 {
     _API_ENDPOINT = API_ENDPOINT;
 };
+
+void Pushover::setTimeout(unsigned int TIMEOUT)
+{
+    _TIMEOUT = TIMEOUT;
+}

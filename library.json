@@ -6,6 +6,10 @@
         "name": "Sean McGregor",
         "maintainer": true
     },
+    "repository": {
+        "type": "git",
+        "url": "hhttps://github.com/CedarwoodTree/PushoverESP32"
+    },
     "version": "1.0.0",
     "frameworks": "arduino"
 }
