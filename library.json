@@ -1,7 +1,7 @@
 {
-    "name": "Pushover - ESP32 WROOM",
+    "name": "PushoverESP32",
     "description": "HTTPS Pushover Service",
-    "keywords": "https,pushover,client,notification",
+    "keywords": "https, pushover, client, notification",
     "authors": {
         "name": "Sean McGregor",
         "maintainer": true

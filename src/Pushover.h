@@ -41,10 +41,10 @@ public:
     int send(PushoverMessage newMessage, bool limit = true);
 
     // Setters
-    void setKey(const char *API_KEY);
-    void setUser(const char *API_USER);
-    void setEndpoint(const char *API_ENDPOINT);
-    void setTimeout(unsigned int TIMEOUT);
+    Pushover &setKey(const char *API_KEY);
+    Pushover &setUser(const char *API_USER);
+    Pushover &setEndpoint(const char *API_ENDPOINT);
+    Pushover &setTimeout(unsigned int TIMEOUT);
 };
 
 #endif

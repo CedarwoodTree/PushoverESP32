@@ -131,22 +131,26 @@ int Pushover::send(PushoverMessage newMessage, bool limit)
 }
 
 // Setters
-void Pushover::setKey(const char *API_KEY)
+Pushover &Pushover::setKey(const char *API_KEY)
 {
-    _API_KEY = API_KEY;
+    this->_API_KEY = API_KEY;
+    return *this;
 };
 
-void Pushover::setUser(const char *API_USER)
+Pushover &Pushover::setUser(const char *API_USER)
 {
-    _API_USER = API_USER;
+    this->_API_USER = API_USER;
+    return *this;
 };
 
-void Pushover::setEndpoint(const char *API_ENDPOINT)
+Pushover &Pushover::setEndpoint(const char *API_ENDPOINT)
 {
-    _API_ENDPOINT = API_ENDPOINT;
+    this->_API_ENDPOINT = API_ENDPOINT;
+    return *this;
 };
 
-void Pushover::setTimeout(unsigned int TIMEOUT)
+Pushover &Pushover::setTimeout(unsigned int TIMEOUT)
 {
-    _TIMEOUT = TIMEOUT;
+    this->_TIMEOUT = TIMEOUT;
+    return *this;
 }
